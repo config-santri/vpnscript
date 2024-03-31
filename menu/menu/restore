@@ -1,0 +1,101 @@
+#!/bin/bash
+# ==========================================
+clear
+# // color
+grs="\033[1;93m"
+bg="\033[42m"
+gr="\e[92;1m"
+NC='\033[0m'
+
+# getting info vps
+IP=$(curl -sS ipv4.icanhazip.com)
+domain=$(cat /etc/xray/domain)
+date=$(date +"%Y-%m-%d")
+# Getting bot token & id
+CHATID=$(grep -E "^#bot# " "/etc/bot/.bot.db" | cut -d ' ' -f 3)
+KEY=$(grep -E "^#bot# " "/etc/bot/.bot.db" | cut -d ' ' -f 2)
+export TIME="10"
+export URL="https://api.telegram.org/bot$KEY/sendMessage"
+clear
+# =========================================
+# fungsi-fungsi
+restore_bot() {
+echo -e ""
+echo -e "${gr} Silahkan Masukkan Link Backupnya di bawah ini!${NC}"
+read -rp " Link File: " -e url
+wget -O backup.zip "$url"
+unzip backup.zip
+rm -f backup.zip
+clear
+echo -e "${gr} System memulai Restore bot..${NC}"
+cd /root/backup
+cp -r bot /etc/
+cp -r bottrx /etc/
+cd
+rm -rf /root/backup
+rm -rf backup.zip
+echo -e "${gr} Restore bot selesai!${NC}"
+read -rp "$(echo -e " Tekan [ ${gr}enter${NC} ] untuk kembali ke menu ")"
+menu-backup
+}
+
+restore_vps() {
+clear
+echo -e ""
+echo -e "${gr} Silahkan Masukkan Link Backupnya di bawah ini!${NC}"
+read -rp " Link File: " -e url
+wget -O backup.zip "$url"
+unzip backup.zip
+rm -f backup.zip
+clear
+echo -e "${gr} System memulai Restore VPS..${NC}"
+cd /root/backup
+cp passwd /etc/
+cp group /etc/
+cp shadow /etc/
+cp gshadow /etc/
+cp -r kyt /var/lib/
+cp -r xray /etc/
+cp -r bot /etc/
+cp -r bottrx /etc/
+cp -r html /var/www/
+cp crontab /etc/
+clear
+notif_restore
+cd
+rm -rf /root/backup
+rm -rf backup.zip
+echo -e "${gr} Restore VPS selesai${NC}"
+read -rp "$(echo -e " Tekan [ ${gr}enter${NC} ] untuk kembali ke menu")"
+menu
+}
+
+function notif_restore() {
+CHATID="$CHATID"
+KEY="$KEY"
+TIME="$TIME"
+URL="$URL"
+TEXT="
+━━━━━━━━━━━━━━━━━━━━━
+<b>  ☘️ BERHASIL RESTORE VPS ☘️</b>
+━━━━━━━━━━━━━━━━━━━━━
+<code>Domain  :</code> <code>$domain</code>
+<code>IP VPS  :</code> <code>$IP</code>
+<code>Tanggal :</code> <code>$date</code>
+<code>Proses  :</code> <code>Restore VPS</code>
+━━━━━━━━━━━━━━━━━━━━━
+"
+curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+}
+# ==========================================
+clear
+echo -e ""
+echo -e " [${gr}01${NC}] Restore bot notif & transaksi ${gr}dulu${NC}"
+echo -e " [${gr}02${NC}] Restore data vps penting"
+echo -e ""
+read -rp "$(echo -e " Silahkan pilih ${gr}1 ${NC}dulu baru ${gr}2${NC}: ")" opt
+case $opt in
+    1) restore_bot ;;
+    2) restore_vps ;;
+    *) restore_bot ;;
+esac
