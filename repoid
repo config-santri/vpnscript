@@ -16,9 +16,10 @@ deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main con
 fi
 clear
 read -rp "$(echo -e "\e[1;32m Mau lanjut ke update upgrade? tekan enter! \e[0m")"
+apt install screen -y
+screen -S update
 apt-get update -y
 apt update -y && apt upgrade -y
-apt install screen -y
 clear
 echo -e "\e[1;32m Update dan Upgrade selesai \e[0m"
 rm -rf /root/repoid
