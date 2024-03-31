@@ -18,4 +18,7 @@ clear
 read -rp "(echo -e "\e[1;32m Mau lanjut ke update upgrade? tekan enter! \e[0m")"
 apt-get update -y
 apt update -y && apt upgrade -y
+apt install screen -y
+clear
+echo -e "\e[1;32m Update dan Upgrade selesai \e[0m"
 rm -rf /root/repoid
